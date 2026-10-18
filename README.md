@@ -79,3 +79,9 @@ cd backend && npm test
   volontairement le pipeline (ex. `expect(res.status).toBe(500)`).
 - Le `Jenkinsfile` enchaîne : installation, tests backend, build frontend, puis
   archivage des artefacts.
+
+## Déclenchement automatique
+
+Le job Jenkins `smartcampus-pipeline` est configuré avec un trigger **Poll SCM**
+(`* * * * *`) : Jenkins interroge le dépôt toutes les minutes et lance le
+pipeline dès qu'un nouveau commit apparaît sur `main`.
