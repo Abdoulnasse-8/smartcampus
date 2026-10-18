@@ -1,0 +1,39 @@
+# Dépendances
+node_modules/
+
+# Variables d'environnement (ne jamais committer les secrets)
+.env
+.env.local
+.env.*.local
+
+# Bases de données SQLite
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# Build Next.js
+.next/
+out/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Couverture de tests
+coverage/
+junit.xml
+
+# Cache TypeScript
+*.tsbuildinfo
+
+# OS / éditeurs
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
