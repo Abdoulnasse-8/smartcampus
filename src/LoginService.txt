@@ -1,1 +1,2 @@
 Fichier de service d'authentification
+Validation de l'e-mail institutionnel ajoutée
