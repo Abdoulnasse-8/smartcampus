@@ -32,7 +32,7 @@ describe('POST /api/auth/login', () => {
       .send({ email: 'admin@smartcampus.com', password: 'password123' });
 
     // [CI-FAIL] ← LIGNE À MODIFIER POUR FAIRE ÉCHOUER LE TEST VOLONTAIREMENT
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(500);
 
     expect(res.body).toHaveProperty('token');
     expect(typeof res.body.token).toBe('string');
