@@ -85,3 +85,5 @@ cd backend && npm test
 Le job Jenkins `smartcampus-pipeline` est configuré avec un trigger **Poll SCM**
 (`* * * * *`) : Jenkins interroge le dépôt toutes les minutes et lance le
 pipeline dès qu'un nouveau commit apparaît sur `main`.
+
+Polling vérifié toutes les minutes (`* * * * *`).
