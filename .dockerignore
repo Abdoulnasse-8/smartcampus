@@ -1,0 +1,18 @@
+# Contexte de build Docker — on ne copie que l'artefact, tout le reste est bruit
+.git
+.gitignore
+node_modules
+**/node_modules
+.next
+**/.next
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+.env
+.env.local
+coverage
+*.log
+images
+*.md
+Jenkinsfile

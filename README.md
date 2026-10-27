@@ -2,7 +2,7 @@
 
 Plateforme universitaire de réservation de salles — MVP.
 
-- `backend/` : API REST **Node.js / Express / SQLite** (JWT)
+- `backend/` : API REST **Node.js / Express / SQLite ou PostgreSQL** (JWT)
 - `frontend/` : application **Next.js (App Router) + Tailwind CSS**
 
 ## Architecture
@@ -14,7 +14,7 @@ smartcampus/
 │   │   ├── app.js              # Application Express (routes + health)
 │   │   ├── server.js           # Point d'entrée (init DB + listen)
 │   │   ├── config.js           # Config via variables d'environnement
-│   │   ├── db.js               # SQLite + schéma + seed
+│   │   ├── db.js               # Double driver SQLite / PostgreSQL + schéma + seed
 │   │   ├── middleware/auth.js  # Vérification du JWT (Bearer)
 │   │   ├── routes/             # auth.js, rooms.js, bookings.js
 │   │   └── services/           # authService.js (login + JWT)
@@ -26,6 +26,9 @@ smartcampus/
 │   ├── lib/                    # api.ts (Axios + JWT), types.ts
 │   ├── middleware.ts           # Protection des routes (cookie token)
 │   └── next.config.mjs         # Rewrites /api -> backend
+├── Dockerfile                  # Image de l'API (multi-stage, non-root)
+├── .dockerignore
+├── compose.yaml                # API + PostgreSQL + volumes + healthchecks
 └── Jenkinsfile                 # Pipeline CI/CD
 ```
 
@@ -79,6 +82,31 @@ cd backend && npm test
   volontairement le pipeline (ex. `expect(res.status).toBe(500)`).
 - Le `Jenkinsfile` enchaîne : installation, tests backend, build frontend, puis
   archivage des artefacts.
+
+## Docker
+
+L'image est construite à partir de l'artefact CI `smartcampus-build.tar.gz` (produit
+par Jenkins) et peut tourner seule (SQLite) ou avec PostgreSQL via Compose.
+
+```bash
+# 1) Artefact (même commande que le Jenkinsfile)
+tar --exclude=node_modules -czf smartcampus-build.tar.gz backend frontend
+
+# 2) Image
+docker build -t smartcampus:1.0 .
+
+# 3a) Conteneur seul — SQLite persistée dans un volume
+docker run -d --name smartcampus -p 8080:8080 -v smartcampus-data:/data smartcampus:1.0
+
+# 3b) Ou pile complète — API + PostgreSQL
+docker compose up -d
+docker compose ps
+docker compose logs -f api
+```
+
+Le driver de base est choisi par variables d'environnement : `DB_DRIVER=sqlite`
+(défaut) ou `DB_DRIVER=postgres` + `DATABASE_URL` (voir `backend/.env.example`).
+Dans Compose, l'API joint PostgreSQL par le **nom du service** (`postgres`).
 
 ## Déclenchement automatique
 

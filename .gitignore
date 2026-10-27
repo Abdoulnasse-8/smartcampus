@@ -37,3 +37,6 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# Artefact CI produit localement (régénéré par Jenkins)
+smartcampus-build.tar.gz

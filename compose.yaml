@@ -1,0 +1,51 @@
+# compose.yaml — SmartCampus : API + PostgreSQL (TP4)
+# Lancement :  docker compose up -d
+# Santé :     docker compose ps          (health: healthy)
+# Logs :      docker compose logs -f api
+# Arrêt :     docker compose down        (les volumes sont conservés)
+
+services:
+  api:
+    build: .
+    image: smartcampus:1.0
+    container_name: smartcampus
+    ports:
+      - "8080:8080"
+    environment:
+      DB_DRIVER: postgres
+      # Nom d'hôte = nom du service compose → résolution DNS interne du réseau
+      DATABASE_URL: postgres://smartcampus:smartcampus@postgres:5432/smartcampus
+      JWT_SECRET: ${JWT_SECRET:-smartcampus-compose-secret}
+      PORT: 8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:8080/api/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: smartcampus-postgres
+    environment:
+      POSTGRES_USER: smartcampus
+      POSTGRES_PASSWORD: smartcampus
+      POSTGRES_DB: smartcampus
+    ports:
+      - "5433:5432" # 5432 est pris par seo_postgres sur l'hôte
+    volumes:
+      - pgdata:/var/lib/postgresql/data # données PostgreSQL persistantes
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smartcampus -d smartcampus"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+    name: smartcampus-pgdata

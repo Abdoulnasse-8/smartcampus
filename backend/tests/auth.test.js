@@ -8,21 +8,22 @@
  */
 
 process.env.DB_PATH = ':memory:';
+process.env.DB_DRIVER = 'sqlite';
 process.env.JWT_SECRET = 'test-secret';
 
 const request = require('supertest');
 const bcrypt = require('bcryptjs');
 
-const { init, db } = require('../src/db');
+const { init, get, close } = require('../src/db');
 const app = require('../src/app');
 const authService = require('../src/services/authService');
 
-beforeAll(() => {
-  init();
+beforeAll(async () => {
+  await init();
 });
 
-afterAll(() => {
-  db.close();
+afterAll(async () => {
+  await close();
 });
 
 describe('POST /api/auth/login', () => {
@@ -64,21 +65,21 @@ describe('POST /api/auth/login', () => {
 });
 
 describe('authService.login (unitaire)', () => {
-  test('retourne un token et l\'utilisateur pour un compte seedé', () => {
-    const result = authService.login('etudiant@smartcampus.com', 'password123');
+  test('retourne un token et l\'utilisateur pour un compte seedé', async () => {
+    const result = await authService.login('etudiant@smartcampus.com', 'password123');
     expect(result.token).toBeDefined();
     expect(result.user.email).toBe('etudiant@smartcampus.com');
     expect(result.user).not.toHaveProperty('password');
   });
 
-  test('lève InvalidCredentialsError pour un mauvais mot de passe', () => {
-    expect(() => authService.login('etudiant@smartcampus.com', 'wrong')).toThrow(
+  test('lève InvalidCredentialsError pour un mauvais mot de passe', async () => {
+    await expect(authService.login('etudiant@smartcampus.com', 'wrong')).rejects.toThrow(
       authService.InvalidCredentialsError
     );
   });
 
-  test('lève InvalidCredentialsError si le hash bcrypt est vérifié', () => {
-    const row = db.prepare('SELECT password FROM users WHERE email = ?').get('admin@smartcampus.com');
+  test('lève InvalidCredentialsError si le hash bcrypt est vérifié', async () => {
+    const row = await get('SELECT password FROM users WHERE email = ?', ['admin@smartcampus.com']);
     expect(bcrypt.compareSync('password123', row.password)).toBe(true);
     expect(bcrypt.compareSync('autre', row.password)).toBe(false);
   });

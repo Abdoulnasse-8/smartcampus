@@ -21,4 +21,11 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Route inconnue' });
 });
 
+// Gestionnaire d'erreurs JSON (express 4 ne rejette pas les promesses seul)
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+  console.error(`[ERROR] ${req.method} ${req.originalUrl} -> ${err.message}`);
+  return res.status(err.statusCode || 500).json({ error: err.message || 'Erreur serveur' });
+});
+
 module.exports = app;

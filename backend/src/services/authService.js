@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('../config');
-const { db } = require('../db');
+const { get } = require('../db');
 
 class InvalidCredentialsError extends Error {
   constructor() {
@@ -11,12 +11,12 @@ class InvalidCredentialsError extends Error {
   }
 }
 
-function login(email, password) {
+async function login(email, password) {
   if (!email || !password) {
     throw new InvalidCredentialsError();
   }
 
-  const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+  const user = await get('SELECT * FROM users WHERE email = ?', [email]);
   if (!user) {
     throw new InvalidCredentialsError();
   }

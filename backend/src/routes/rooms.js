@@ -1,12 +1,16 @@
 const express = require('express');
-const { db } = require('../db');
+const { all } = require('../db');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
-router.get('/', requireAuth, (req, res) => {
-  const rooms = db.prepare('SELECT id, name, capacity FROM rooms ORDER BY name').all();
-  return res.status(200).json(rooms);
+router.get('/', requireAuth, async (req, res, next) => {
+  try {
+    const rooms = await all('SELECT id, name, capacity FROM rooms ORDER BY name');
+    return res.status(200).json(rooms);
+  } catch (err) {
+    return next(err);
+  }
 });
 
 module.exports = router;
